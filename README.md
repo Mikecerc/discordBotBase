@@ -31,11 +31,11 @@ The interactionCreate.js file gets the regitstered command from the client that 
 
 ### Command Files: 
 
-Command Files take the following form. Code within the execute function is run. The data of the module being exported serves as the structure and options of the application command being created. Learn more about creating slash command objects [here](https://discord.com/developers/docs/interactions/application-commands) 
+Command Files take the following form. Code within the execute function is run. The other data of the object being exported serves as the structure and options of the application command being created. Learn more about creating slash command objects [here](https://discord.com/developers/docs/interactions/application-commands) 
 
 A template for a command file:
 ```js
-module.exports = {
+export default {
     name: 'commandname',
     description: 'description',
     options: [],
@@ -48,11 +48,11 @@ module.exports = {
 
 ### Event Files
 
-Event files execute code within the execute function just like command files, except the data of the module is just the name of the event that you want the file to be. A list of triggers/events along with their arguements can be found [here](https://gist.github.com/milanmdev/06a47faa1925eebfcbbb65cf02c57963) 
+Event files execute code within the execute function just like command files, except other data being exported is just the name of the event that you want the file to be. A list of triggers/events along with their arguements can be found [here](https://gist.github.com/milanmdev/06a47faa1925eebfcbbb65cf02c57963) 
 
 Example of an event file:
 ```js
-module.exports = {
+export default {
     name: 'interactionCreate',
     
     execute(interaction) {
@@ -60,7 +60,7 @@ module.exports = {
     } 
 }
 //or
-module.exports = {
+export default {
     name: 'messageCreate',
 
     execute(message) {
