@@ -1,16 +1,22 @@
 import {
-    MessageEmbed,
-    MessageActionRow,
-    MessageSelectMenu,
-    MessageButton,
+    EmbedBuilder,
+    ActionRowBuilder,
+    SelectMenuBuilder,
+    ButtonBuilder,
     Permissions,
-    Modal,
-    TextInputComponent,
+    ModalBuilder,
+    TextInputBuilder,
+    MessageActionRowComponent,
+    MessageActionRowComponentResolvable,
+    ModalActionRowComponentBuilder,
+    ButtonStyle,
+    PermissionFlagsBits,
+    TextInputStyle
 } from "discord.js";
 import pollModel from '../../schemas/pollSchema.js'
 export default {
     name: "interactionCreate",
-    async execute(interaction) {
+    async execute(interaction: any) {
         if (interaction.isModalSubmit()) {
             const data = interaction.customId.split("-");
             if (data[0] == "10") {
@@ -36,26 +42,26 @@ export default {
                     if (answer3 != "") answers.push(answer3);
                     if (answer4 != "") answers.push(answer4);
 
-                    let embed = new MessageEmbed()
-                        .setColor("RANDOM")
+                    let embed = new EmbedBuilder()
+                        .setColor("Orange")
                         .setTitle("Multiple Choice Poll")
                         .setDescription(question);
 
                     for (const answer in answers) {
-                        embed.addField(
-                            `Answer #${parseInt(answer) + 1}:`,
-                            `${answers[answer]}`
-                        );
+                        embed.addFields({
+                            name: `Answer #${parseInt(answer) + 1}:`,
+                            value: `${answers[answer]}`
+                    });
                         options.push({
                             label: `Answer ${parseInt(answer) + 1}:`,
                             value: `${answer}`,
                             description: `${answers[answer].slice(0, 100)}`,
                         });
                     }
-                    let row;
+                    let row: any;
                     if (multipleResponse) {
-                        row = new MessageActionRow().addComponents(
-                            new MessageSelectMenu()
+                        row = new ActionRowBuilder().addComponents(
+                            new SelectMenuBuilder()
                                 .setCustomId("11")
                                 .setPlaceholder("No Choice Selected")
                                 .addOptions(options)
@@ -63,17 +69,17 @@ export default {
                                 .setMaxValues(answers.length)
                         );
                     } else {
-                        row = new MessageActionRow().addComponents(
-                            new MessageSelectMenu()
+                        row = new ActionRowBuilder().addComponents(
+                            new SelectMenuBuilder()
                                 .setCustomId("11")
                                 .setPlaceholder("No Choice Selected")
                                 .addOptions(options)
                         );
                     }
-                    let row1 = new MessageActionRow().addComponents(
-                        new MessageButton()
+                    let row1 = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
                             .setCustomId("12")
-                            .setStyle("DANGER")
+                            .setStyle(ButtonStyle.Danger)
                             .setLabel("End Poll")
                     );
                     const pollMsg = await interaction.reply({
@@ -82,13 +88,13 @@ export default {
                     });
                     const message = await interaction.fetchReply().catch((e) => {
                         if (e) {
-                            const err = new MessageEmbed()
-                                .setColor('RED')
+                            const err = new EmbedBuilder()
+                                .setColor('Orange')
                                 .setDescription('There was an error creating this poll. Please try again later.');
                             return pollMsg.edit({ embeds: [err], components: [] });
                         }
                     });
-                    doc = new pollModel();
+                    const doc = new pollModel();
                     doc.messageId = message.id;
                     doc.anonymous = isAnonymous;
                     doc.creator = interaction.user.id;
@@ -101,8 +107,8 @@ export default {
                     const question =
                         interaction.fields.getTextInputValue("question");
 
-                    let embed = new MessageEmbed()
-                        .setColor("RANDOM")
+                    let embed = new EmbedBuilder()
+                        .setColor("Orange")
                         .setTitle("Free Response Survey:")
                         .setDescription(question);
 
@@ -115,16 +121,16 @@ export default {
                         reason: "Survey,",
                     });
                     const message = await interaction.fetchReply();
-                    let row = new MessageActionRow().addComponents(
-                        new MessageButton()
+                    let row = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
                             .setCustomId(`13-${thread.id}-${isAnonymous}`)
-                            .setStyle("PRIMARY")
+                            .setStyle(ButtonStyle.Primary)
                             .setLabel("Respond"),
-                        new MessageButton()
+                        new ButtonBuilder()
                             .setCustomId(
                                 `14-${thread.id}-${interaction.user.id}`
                             )
-                            .setStyle("DANGER")
+                            .setStyle(ButtonStyle.Danger)
                             .setLabel("End Survey")
                     );
                     message.edit({ components: [row] });
@@ -134,8 +140,8 @@ export default {
                 const isAnonymous =
                     data[2] == "false" || data[2] == "null" ? false : true;
                 if (!isAnonymous) {
-                    const embed = new MessageEmbed()
-                        .setColor("RANDOM")
+                    const embed = new EmbedBuilder()
+                        .setColor("Orange")
                         .setTitle("Survey Result")
                         .setAuthor({
                             name: `${interaction.user.tag}`,
@@ -152,13 +158,13 @@ export default {
                         (t) => t.id == data[1]
                     );
                     thread.send({ embeds: [embed] });
-                    const success = new MessageEmbed()
-                        .setColor("GREEN")
+                    const success = new EmbedBuilder()
+                        .setColor("Orange")
                         .setDescription("Your response has been recorded");
                     interaction.reply({ embeds: [success], ephemeral: true });
                 } else {
-                    const embed = new MessageEmbed()
-                        .setColor("RANDOM")
+                    const embed = new EmbedBuilder()
+                        .setColor("Orange")
                         .setTitle("Survey Result")
                         .setDescription(`repsonse to the survey:`)
                         .addFields({ name: "Response", value: `${answer}` });
@@ -167,8 +173,8 @@ export default {
                         (t) => t.id == data[1]
                     );
                     thread.send({ embeds: [embed] });
-                    const success = new MessageEmbed()
-                        .setColor("GREEN")
+                    const success = new EmbedBuilder()
+                        .setColor("Orange")
                         .setDescription("Your response has been recorded");
                     interaction.reply({ embeds: [success], ephemeral: true });
                 }
@@ -181,8 +187,8 @@ export default {
                     serverId: interaction.guild.id,
                 }).catch((e) => {
                     if (e) {
-                        const err = new MessageEmbed()
-                            .setColor('RED')
+                        const err = new EmbedBuilder()
+                            .setColor('Orange')
                             .setDescription('There was an error responding to this poll. Please try again later.');
                         return interaction.reply({embeds: [err]});
                     }
@@ -212,16 +218,16 @@ export default {
                     });
                 }
                 res.save();
-                let success = new MessageEmbed()
-                    .setColor("GREEN")
+                let success = new EmbedBuilder()
+                    .setColor("Orange")
                     .setDescription("Your response has been recorded")
                     .setTimestamp();
                 interaction.reply({ embeds: [success], ephemeral: true });
 
-                let newEmbed = new MessageEmbed()
+                let newEmbed = new EmbedBuilder()
                     .setTitle("Multiple Choice Poll")
                     .setDescription(res.content.question)
-                    .setColor("RANDOM");
+                    .setColor("Orange");
                 let votes = [0, 0, 0, 0];
                 for (const response in res.responses) {
                     for (const vote in res.responses[response].answers) {
@@ -231,10 +237,10 @@ export default {
                     }
                 }
                 for (const answer in res.content.answers) {
-                    newEmbed.addField(
-                        `Answer #${parseInt(answer) + 1} (${votes[answer]}):`,
-                        `${res.content.answers[answer]}`
-                    );
+                    newEmbed.addFields({
+                        name: `Answer #${parseInt(answer) + 1} (${votes[answer]}):`,
+                        value: `${res.content.answers[answer]}`
+                });
                 }
                 await interaction.message.edit({ embeds: [newEmbed] });
             }
@@ -246,25 +252,25 @@ export default {
                     serverId: interaction.guild.id,
                 }).catch((e) => {
                     if (e) {
-                        const err = new MessageEmbed()
-                            .setColor('RED')
+                        const err = new EmbedBuilder()
+                            .setColor('Orange')
                             .setDescription('An error occured when trying to end this poll. Please try again later.');
                         return interaction.reply({ embeds: [err] });
                     }
                 });
                 if (
                     interaction.member.permissions.has(
-                        Permissions.FLAGS.MANAGE_MESSAGES
+                        PermissionFlagsBits.ManageMessages
                     ) ||
                     interaction.user.id == res.creator
                 ) {
-                    let newEmbed = new MessageEmbed()
+                    let newEmbed = new EmbedBuilder()
                         .setTitle("Multiple Choice Poll (ended)")
                         .setDescription(res.content.question)
-                        .setColor("RANDOM");
+                        .setColor("Orange");
 
                     let votes = [0, 0, 0, 0];
-                    let users = ["", "", "", ""];
+                    let users: any = ["", "", "", ""];
                     for (const response in res.responses) {
                         for (const vote in res.responses[response].answers) {
                             votes[
@@ -286,20 +292,20 @@ export default {
                             : (users = users);
                     for (const answer in res.content.answers) {
                         if (res.anonymous == true) {
-                            newEmbed.addField(
-                                `Answer #${parseInt(answer) + 1}`,
-                                `${res.content.answers[answer]}`
-                            );
-                            newEmbed.addField(`Responses:`, `${votes[answer]}`);
+                            newEmbed.addFields({
+                                name: `Answer #${parseInt(answer) + 1}`,
+                                value: `${res.content.answers[answer]}`
+                        });
+                            newEmbed.addFields({ name: `Responses:`, value: `${votes[answer]}` });
                         } else {
-                            newEmbed.addField(
-                                `Answer #${parseInt(answer) + 1}`,
-                                `${res.content.answers[answer]}`
-                            );
-                            newEmbed.addField(
-                                `Responses: (${votes[answer]}):`,
-                                `Users: ${users[answer].slice(0, 1000)}`
-                            );
+                            newEmbed.addFields({
+                                name: `Answer #${parseInt(answer) + 1}`,
+                                value: `${res.content.answers[answer]}`
+                        });
+                            newEmbed.addFields({
+                                name: `Responses: (${votes[answer]}):`,
+                                value: `Users: ${users[answer].slice(0, 1000)}`
+                        });
                         }
                     }
                     await interaction.message.edit({
@@ -311,28 +317,28 @@ export default {
                         serverId: interaction.guild.id,
                     }).catch((e) => {
                         if (e) {
-                            const err = new MessageEmbed()
-                                .setColor('RED')
+                            const err = new EmbedBuilder()
+                                .setColor('Orange')
                                 .setDescription('An error occured when trying to end this poll. Please try again later.');
                             return interaction.reply({ embeds: [err] });
                         }
                     });
                 } else {
-                    const embed = new MessageEmbed()
-                        .setColor("RED")
+                    const embed = new EmbedBuilder()
+                        .setColor("Orange")
                         .setDescription(
                             "Sorry, You do not have permission to end this poll. Only the poll creator and those with the permission: MANAGE_MESSSAGES can end this poll."
                         );
                     interaction.reply({ embeds: [embed], ephemeral: true });
                 }
             } else if (data[0] == "13") {
-                const modal = new Modal()
+                const modal = new ModalBuilder()
                     .setCustomId(`15-${data[1]}-${data[2]}`)
                     .setTitle("Survey Response");
 
-                let answer = new TextInputComponent()
+                let answer = new TextInputBuilder()
                     .setCustomId("answer")
-                    .setStyle("PARAGRAPH")
+                    .setStyle(TextInputStyle.Paragraph)
                     .setPlaceholder("Please enter a response")
                     .setMaxLength(4000)
                     .setRequired(true);
@@ -343,18 +349,18 @@ export default {
                     answer.setLabel("Response")
                 }
 
-                const row = new MessageActionRow().addComponents(answer);
+                const row = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(answer);
                 modal.addComponents(row);
                 await interaction.showModal(modal);
             } else if (data[0] == "14") {
                 if (
                     interaction.user.id == data[2] ||
                     interaction.member.permissions.has(
-                        Permissions.FLAGS.MANAGE_MESSAGES
+                        PermissionFlagsBits.ManageMessages
                     )
                 ) {
-                    const embed = new MessageEmbed()
-                        .setColor("RANDOM")
+                    const embed = new EmbedBuilder()
+                        .setColor("Orange")
                         .setTitle("Free Resposne Survey (ended):")
                         .setDescription(
                             interaction.message.embeds[0].description
@@ -368,8 +374,8 @@ export default {
                     );
                     await thread.setArchived(true);
                 } else {
-                    const embed = new MessageEmbed()
-                        .setColor("RED")
+                    const embed = new EmbedBuilder()
+                        .setColor("Orange")
                         .setDescription(
                             "Sorry, You do not have permission to end this poll. Only the poll creator and those with the permission: MANAGE_MESSSAGES can end this poll."
                         );
