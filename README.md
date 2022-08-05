@@ -1,4 +1,7 @@
 # Discord.js Discord Bot Base Code
+
+This Branch is outdated and will not be worked on any further. All further development will be done with typescript.
+
 Hello! This codebase is a basic discord bot template that I designed. This codebase is idential to a discord bot I created ([Illusion](https://github.com/Mikecerc/Illusion-V2)) for the 862 Electrical subgroup's discord server, however some of the more specific slash commands have been removed. The commands that remain are basic utility commands. It should be known that the surveys command uses a mongoDB database. A [mongoDB Atlas](https://www.mongodb.com/atlas) database or a [locally hosted mongoDb](https://www.mongodb.com/docs/manual/installation/) database will suffice. However, if you are using a local database, make sure your operating system supports the isntall, as there are are conflicts with newer Debian operating systems. A [mongoDB Atlas](https://www.mongodb.com/atlas) database is free and should work on any install.  
 
 ## Commands 
